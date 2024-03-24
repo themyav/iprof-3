@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<input type="text" id="myInput">
+
+<button onClick="getValue()">Поиск пользователя</button>
+<p id="notification"></p>
+<table id="table"></table>
+
+
+<script>
+    let userArray = []
+    class User{
+        constructor(surname, name, fatherName, email) {
+            this.surname = surname
+            this.name = name
+            this.fatherName = fatherName
+            this.email = email
+        }
+    }
+    const u1 = new User('Иванов', 'Иван', 'Петрович', 'ivan@ivan');
+    const u2 = new User('Петров', 'Иван', 'Иванович', 'petr@petr');
+    const u3 = new User('Смирнов', 'Семен', 'Андреевич', 'sema@bk.ru');
+    const u4 = new User('Иванов', 'Петр', 'Васильевич', 'petya@bk.ru');
+
+
+    userArray.push(u1, u2, u3, u4);
+
+    function isName(value, user){
+        if(user.name.toLowerCase().match(value) === null) return false;
+        return user.name.toLowerCase() === value || (user.name.toLowerCase().match("^" + value) !== null);
+    }
+
+    function isSurname(value, user){
+        if(user.surname.toLowerCase().match(value) === null) return false;
+        return user.surname.toLowerCase() === value || (user.surname.toLowerCase().match("^" + value) !== null)
+
+    }
+
+    function isFatherName(value, user){
+        if(user.fatherName.toLowerCase().match(value) === null) return false;
+        return user.fatherName.toLowerCase() === value || (user.fatherName.toLowerCase().match("^" + value) !== null)
+
+    }
+
+    function isEmail(value, user){
+        if(user.email.toLowerCase().match(value) === null) return false;
+        return user.email.toLowerCase() === value || (user.email.toLowerCase().match("^" + value) !== null)
+
+    }
+
+    let searchResults = []
+    let functionArr = [isName, isSurname, isFatherName,isEmail]
+    function addReslts(result, data){
+
+        for(let i = 0; i < userArray.length; i++){
+            let ok = true;
+             for(let j = 0; j < result.length; j++){
+                 if(!functionArr[result[j]](data[j], userArray[i])){
+                   ok = false;
+                 }
+             }
+             if(ok){
+                   searchResults.push(userArray[i]);
+             }
+        }
+    }
+
+
+    let searchArr = []
+
+    function doChecks(arr, parts){
+        for(let i = 0; i < arr.length; i++){
+            addReslts(arr[i], parts)
+        }
+    }
+
+
+    function getNumbersSimple(parts){
+        searchArr = []
+        let SZ = 4;
+        for(let i = 0; i < SZ; i++){
+            for(let j = 0; j < SZ; j++){
+                if(j === i) continue;
+                for(let k = 0; k < SZ; k++){
+                    if(k === j || k === i) continue;
+                    for(let t = 0; t < SZ; t++){
+                        if(t === k || t === i || t === j) continue;
+                        arr = [i, j, t, k].slice(0, parts.length);
+                        searchArr.push(arr)
+                    }
+                }
+            }
+        }
+
+        const uniqueArray = searchArr.filter((value, index, self) => {
+            return self.indexOf(value) === index;
+        });
+        doChecks(uniqueArray, parts);
+    }
+
+
+    function getValue() {
+        searchResults = []
+        let table = document.getElementById('table');
+        table.innerHTML = '';
+        var inputElement = document.getElementById("myInput");
+        var value = inputElement.value;
+        let parts = value.split(" ")
+        if(parts.length > 4){
+            notice = document.getElementById('notification').innerText = 'Введите не более 3 параметров: Фамиия, Имя, Отчество, Почтовый адрес'
+            return
+        }
+
+        for(let i = 0; i < parts.length; i++){
+            parts[i] = parts[i].toLowerCase();
+        }
+
+
+        getNumbersSimple(parts)
+        const uniqueResults = searchResults.filter((value, index, self) => {
+            return self.indexOf(value) === index;
+        });
+        for(let i = 0; i < uniqueResults.length; i++){
+            console.log(uniqueResults[i]);
+        }
+
+        table = document.getElementById('table');
+        document.getElementById('notification').innerText = 'По запросу нашлось ' + uniqueResults.length + ' результатов'
+
+        for (let user of uniqueResults) {
+            let tr = document.createElement('tr');
+            let td1 = document.createElement('td');
+            td1.textContent = user.surname;
+            tr.appendChild(td1);
+            let td2 = document.createElement('td');
+            td2.textContent = user.name;
+            tr.appendChild(td2);
+
+            let td3 = document.createElement('td');
+            td3.textContent = user.fatherName;
+            tr.appendChild(td3);
+            table.appendChild(tr);
+
+            let td4 = document.createElement('td');
+            td4.textContent = user.email;
+            tr.appendChild(td4);
+            table.appendChild(tr);
+        }
+    }
+
+</script>
+</body>
+<script src="script.js"></script>
+</html>
